@@ -10,8 +10,9 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cesar.memorygame.model.CardModel
 import com.cesar.memorygame.viewmodel.GameViewModel
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
 
 @Composable
 fun MemoryGameScreen(
@@ -31,53 +31,84 @@ fun MemoryGameScreen(
     modifier: Modifier = Modifier
 ) {
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "🏍 Memory Moto Game",
-            fontSize = 34.sp
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Movimientos: ${viewModel.moves}",
-            fontSize = 20.sp
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(3), // mejor distribución
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            itemsIndexed(viewModel.cards) { index, card ->
+            Spacer(modifier = Modifier.height(10.dp))
 
-                CardItem(
-                    card = card,
-                    onClick = {
-                        viewModel.flipCard(index)
-                    }
-                )
+            Text(
+                text = "🏍 Memory Moto Game",
+                fontSize = 34.sp
+            )
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Movimientos: ${viewModel.moves}",
+                fontSize = 20.sp
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                itemsIndexed(viewModel.cards) { index, card ->
+
+                    CardItem(
+                        card = card,
+                        onClick = {
+                            viewModel.flipCard(index)
+                        }
+                    )
+
+                }
             }
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Button(
+                onClick = { viewModel.startGame() }
+            ) {
+                Text("Reiniciar Juego")
+            }
+
         }
 
-        Spacer(modifier = Modifier.height(25.dp))
+        // 🎉 MENSAJE DE VICTORIA
+        if (viewModel.gameWon) {
 
-        Button(onClick = { viewModel.startGame() }) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = {
+                    Text("🎉 ¡Ganaste!")
+                },
+                text = {
+                    Text("Completaste el juego en ${viewModel.moves} movimientos")
+                },
+                confirmButton = {
 
-            Text("Reiniciar Juego")
+                    TextButton(
+                        onClick = {
+                            viewModel.startGame()
+                        }
+                    ) {
+                        Text("Jugar de nuevo")
+                    }
+
+                }
+            )
 
         }
 
@@ -109,7 +140,11 @@ fun CardItem(
                     Color(0xFF1565C0),
                 shape = RoundedCornerShape(18.dp)
             )
-            .clickable { onClick() },
+            .clickable(
+                enabled = !card.isFaceUp && !card.isMatched
+            ) {
+                onClick()
+            },
         contentAlignment = Alignment.Center
     ) {
 
@@ -132,4 +167,5 @@ fun CardItem(
         }
 
     }
+
 }

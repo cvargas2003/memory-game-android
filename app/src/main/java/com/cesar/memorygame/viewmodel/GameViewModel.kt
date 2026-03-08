@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.cesar.memorygame.R
 import com.cesar.memorygame.model.CardModel
 
 class GameViewModel : ViewModel() {
@@ -21,9 +22,16 @@ class GameViewModel : ViewModel() {
 
     fun startGame() {
 
-        val values = listOf(1, 2, 3, 4, 5, 6)
+        val images = listOf(
+            R.drawable.moto1,
+            R.drawable.moto2,
+            R.drawable.moto3,
+            R.drawable.moto4,
+            R.drawable.moto5,
+            R.drawable.moto6
+        )
 
-        val deck = (values + values).shuffled()
+        val deck = (images + images).shuffled()
 
         cards.clear()
 
@@ -53,7 +61,7 @@ class GameViewModel : ViewModel() {
 
             val firstCard = cards[firstCardIndex!!]
 
-            if (firstCard.value == card.value) {
+            if (firstCard.imageRes == card.imageRes) {
 
                 firstCard.isMatched = true
                 card.isMatched = true

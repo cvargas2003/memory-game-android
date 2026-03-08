@@ -7,11 +7,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.cesar.memorygame.R
 import com.cesar.memorygame.model.CardModel
+import kotlinx.coroutines.*
+import androidx.lifecycle.viewModelScope
 
 class GameViewModel : ViewModel() {
-
+    private var isChecking = false
     var moves by mutableStateOf(0)
-
+    var gameWon by mutableStateOf(false)
     var cards = mutableStateListOf<CardModel>()
 
     private var firstCardIndex: Int? = null
@@ -40,10 +42,13 @@ class GameViewModel : ViewModel() {
         }
 
         moves = 0
+        gameWon = false
         firstCardIndex = null
     }
 
     fun flipCard(index: Int) {
+
+        if (isChecking) return
 
         val card = cards[index]
 
@@ -65,14 +70,27 @@ class GameViewModel : ViewModel() {
 
                 firstCard.isMatched = true
                 card.isMatched = true
+                if (cards.all { it.isMatched }) {
+                    gameWon = true
+                }
+
+                firstCardIndex = null
 
             } else {
 
-                firstCard.isFaceUp = false
-                card.isFaceUp = false
-            }
+                isChecking = true
 
-            firstCardIndex = null
+                viewModelScope.launch {
+
+                    delay(1000)
+
+                    firstCard.isFaceUp = false
+                    card.isFaceUp = false
+
+                    firstCardIndex = null
+                    isChecking = false
+                }
+            }
         }
     }
 }
